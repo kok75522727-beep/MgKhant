@@ -2,7 +2,6 @@
 
 import base64
 import streamlit as st
-from streamlit_option_menu import option_menu
 from pathlib import Path
 import json
 import re
@@ -554,24 +553,12 @@ def main():
         st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Advanced Voice Changer</p>", unsafe_allow_html=True)
         st.markdown("---")
         
-        selected = option_menu(
-            menu_title=None,
+        selected = st.radio(
+            "မီနူးရွေးပါ",
             options=["🗣️ အသံထုတ်ရန်", "🔐 Admin"],
-            icons=["mic", "lock"],
-            default_index=0,
+            index=0,
             key="main_menu",
-            styles={
-                "container": {"padding": "0!important", "background-color": "transparent"},
-                "icon": {"color": "#818cf8", "font-size": "16px"},
-                "nav-link": {
-                    "font-size": "15px",
-                    "text-align": "left",
-                    "margin": "4px 0",
-                    "border-radius": "10px",
-                    "--hover-color": "rgba(99, 102, 241, 0.15)",
-                },
-                "nav-link-selected": {"background": "linear-gradient(135deg, #6366f1 0%, #ec4899 100%)", "color": "white"},
-            }
+            label_visibility="collapsed",
         )
         st.markdown("---")
         st.markdown("<div style='text-align: center; color: #64748b; font-size: 12px;'>© 2026 Mg Khant Voice System<br>All Rights Reserved.</div>", unsafe_allow_html=True)
