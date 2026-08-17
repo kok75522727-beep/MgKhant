@@ -21,7 +21,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 FEATURED_VOICES = [
-    ("eleven:X9GaMXSa56FAZCxJDDey", "+0Hz", "ရွှေနေ", "ElevenLabs Voice 1 (ရွှေနေ)"),
+    ("eleven:X9GaMXSa56FAZCxJDDey", "+0Hz", "ရွှေနေ", "ရွှေနေ"),
 ]
 
 EFFECTS = {
@@ -215,7 +215,7 @@ def generate_elevenlabs_tts(text, voice_id, rate="+0%", pitch="+0Hz"):
             chunk_files.append(chunk_file)
 
         manifest = temp_path / "concat.txt"
-        manifest.write_text("".join(f"file '{path.as_posix()}'\\n" for path in chunk_files), encoding="utf-8")
+        manifest.write_text("".join(f"file '{path.as_posix()}'\n" for path in chunk_files), encoding="utf-8")
         try:
             subprocess.run(
                 ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(manifest), "-c:a", "libmp3lame", "-q:a", "2", str(output_file)],
@@ -291,5 +291,4 @@ __all__ = [
     "run_tts_to_file",
     "apply_effects",
 ]
-
 
