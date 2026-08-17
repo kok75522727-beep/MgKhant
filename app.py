@@ -363,19 +363,6 @@ def render_section(num, title):
 def tts_page():
     # No fixed character limit in the text box. The selected TTS provider's
     # credits/quota and the engine's safe chunking remain the practical limits.
-    # Telegram Banner
-    st.markdown("""
-    <div class="telegram-banner">
-        <div style="font-size: 16px; font-weight: 600; color: #f0f9ff; margin-bottom: 2px;">
-            📢 အားလုံးပဲ မင်္ဂလာပါ — Mg Khant AI မှ ကြိုဆိုပါတယ်
-        </div>
-        <div style="font-size: 13px; color: #e0f2fe; margin-bottom: 6px;">
-            အသံသွင်းရတာ အဆင်မပြေတာရှိရင် Group မှာ လာရောက်မေးမြန်းနိုင်ပါတယ်။
-        </div>
-        <a href="https://t.me/fruitworld23" target="_blank">🔗 Telegram Group သို့ ဝင်မည်</a>
-    </div>
-    """, unsafe_allow_html=True)
-
     if not telegram_access_gate():
         return
 
@@ -535,7 +522,8 @@ def admin_page():
                         json.dump({"count": 0}, f)
                     st.rerun()
         elif pwd:
-            st.error("❌ Password မှားယွင်းနေပါသည်။")
+
+                    st.error("❌ Password မှားယွင်းနေပါသည်။")
 
 # ---------------------------------------------------------------------------
 # Main Router
