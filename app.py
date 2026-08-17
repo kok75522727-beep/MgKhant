@@ -63,21 +63,21 @@ def telegram_access_gate():
     st.markdown("""
     <div class="telegram-banner">
       <div style="font-size:16px;font-weight:700;color:#f0f9ff;">🔒 အသံထုတ်ရန် Telegram Group ဝင်ထားရပါမည်</div>
-      <div style="font-size:13px;color:#e0f2fe;margin:6px 0;">အရင် Group ဝင်ပြီး Telegram User ID နဲ့ Verify လုပ်ပါ။</div>
+      <div style="font-size:13px;color:#e0f2fe;margin:6px 0;">Group join ပြီးရင် Rose Bot က ပေးထားတဲ့ Telegram User ID ကို အောက်မှာထည့်ပြီး Verify လုပ်ပါ။</div>
       <a href="https://t.me/fruitworld23" target="_blank">🔗 fruitworld23 Group သို့ ဝင်မည်</a>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("#### Telegram Account Verify လုပ်ရန်")
-    st.caption("ကိုယ့် Telegram User ID ကို @userinfobot မှ ရယူပြီး အောက်မှာထည့်ပါ။ User ID က username (@name) မဟုတ်ဘဲ ဂဏန်းနံပါတ်ဖြစ်ရပါမယ်။")
+    st.caption("Group join ပြီးတာနဲ့ Rose Bot က ပြပေးတဲ့ Telegram User ID ကို ကူးယူပြီး အောက်မှာထည့်ပါ။ User ID က @username မဟုတ်ဘဲ ဂဏန်းနံပါတ်ဖြစ်ရပါမယ်။")
     user_id_text = st.text_input(
-        "Telegram User ID",
+        "Rose Bot ပေးထားတဲ့ Telegram User ID",
         key="telegram_user_id_input",
-        placeholder="ဥပမာ - 123456789",
+        placeholder="Rose Bot ကပေးတဲ့ ID ဥပမာ - 123456789",
     ).strip()
-    if st.button("✅ Group Join ပြီး Verify လုပ်မည်", key="verify_telegram_member", use_container_width=True):
+    if st.button("✅ Rose Bot ပေးထားတဲ့ ID ဖြင့် Verify လုပ်မည်", key="verify_telegram_member", use_container_width=True):
         if not user_id_text.isdigit():
-            st.error("❌ Telegram User ID ကို ဂဏန်းနံပါတ်ဖြင့် ထည့်ပါ။ @username မထည့်ပါနဲ့။")
+            st.error("❌ Rose Bot ပေးထားတဲ့ User ID ဂဏန်းကို ထည့်ပါ။ @username မထည့်ပါနဲ့။")
         else:
             is_member = _telegram_is_member(user_id_text)
             if is_member:
@@ -353,7 +353,7 @@ def tts_page():
             placeholder="ဒီမှာ စာသားရိုက်ထည့်ပါ..."
         )
         st.markdown(
-            f"<div style='text-align:right; color:#64748b; font-size:13px; margin-top:-8px; margin-bottom:12px;'>လက်ရှိစာလုံးရေ — <b>{len(text):,}</b> လုံး (Fixed limit မရှိပါ)</div>",
+            f"<div style='text-align:right; color:#64748b; font-size:13px; margin-top:-8px; margin-bottom:12px;'>လက်ရှိစာလုံးရေ — <b>{len(text):,}</b> လုံး (ကန့်သတ်ချက်မရှိပါ)</div>",
             unsafe_allow_html=True,
         )
         
@@ -372,12 +372,9 @@ def tts_page():
         selected_idx = voice_options.index(selected_voice_str)
         voice_id, pitch_offset, name, label = FEATURED_VOICES[selected_idx]
 
-        if voice_id.startswith("eleven:"):
-            st.info("🎙️ ElevenLabs Voice 1 ကို အသုံးပြုနေပါသည်။ API key ကို Streamlit Secrets ထဲမှ လုံခြုံစွာ ဖတ်ယူပါသည်။")
-
         col_speed, col_pitch = st.columns(2)
         with col_speed:
-            render_section("3", "အလျင် (Speed)")
+            render_section("3", "အလျင်")
             speed_level = st.slider(
                 "အသံအလျင်",
                 min_value=1,
@@ -389,11 +386,11 @@ def tts_page():
             )
             # Map the user-friendly 1–100 control to the engine's 0.5x–2.0x range.
             speed = 0.5 + (speed_level - 1) * 1.5 / 99
-            st.caption(f"Speed: {speed_level}/100 • {speed:.2f}x")
+            st.caption(f"အလျင် — {speed_level}/100 • {speed:.2f} ဆ")
         with col_pitch:
-            render_section("4", "အသံအမြင့် (Pitch)")
+            render_section("4", "အသံအမြင့်အနိမ့်")
             pitch_value = st.slider(
-                "Pitch",
+                "အသံအမြင့်အနိမ့်",
                 min_value=-50,
                 max_value=50,
                 value=0,
