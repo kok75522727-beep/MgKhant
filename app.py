@@ -5,12 +5,7 @@ import streamlit as st
 from pathlib import Path
 import json
 import re
-import hashlib
-import hmac
-import html
-import time
 import requests
-import streamlit.components.v1 as components
 
 from voice_engine import (
     FEATURED_VOICES,
@@ -23,7 +18,6 @@ from voice_engine import (
 
 ADMIN_PASSWORD = "Khant@6789"
 TELEGRAM_GROUP = "@fruitworld23"
-TELEGRAM_BOT_USERNAME = "MgKhantAIVerifyBot"
 
 
 def _telegram_secret(name):
@@ -34,24 +28,6 @@ def _telegram_secret(name):
         value = None
     return str(value or "").strip()
 
-
-def _verify_telegram_login(auth_data):
-    """Verify Telegram Login Widget data using the bot token from Secrets."""
-    bot_token = _telegram_secret("TELEGRAM_BOT_TOKEN")
-    if not bot_token or not auth_data.get("id") or not auth_data.get("hash"):
-        return False
-    try:
-        auth_date = int(auth_data.get("auth_date", "0"))
-        if time.time() - auth_date > 86400:
-            return False
-        received_hash = auth_data.get("hash", "")
-        check_items = [f"{key}={auth_data[key]}" for key in sorted(auth_data) if key != "hash"]
-        data_check_string = "\n".join(check_items).encode("utf-8")
-        secret_key = hashlib.sha256(bot_token.encode("utf-8")).digest()
-        expected_hash = hmac.new(secret_key, data_check_string, hashlib.sha256).hexdigest()
-        return hmac.compare_digest(expected_hash, received_hash)
-    except (TypeError, ValueError, UnicodeError):
-        return False
 
 
 def _telegram_is_member(user_id):
@@ -77,42 +53,41 @@ def _telegram_is_member(user_id):
 
 
 def telegram_access_gate():
-    """Require Telegram Login plus active membership before showing TTS controls."""
+    """Require an active fruitworld23 membership before showing TTS controls."""
     if st.session_state.get("telegram_verified"):
         return True
     if not _telegram_secret("TELEGRAM_BOT_TOKEN"):
         st.error("⚠️ Telegram Bot Token မတွေ့ပါ။ Streamlit Secrets ထဲမှာ TELEGRAM_BOT_TOKEN ထည့်ပါ။")
         return False
 
-    query = dict(st.query_params)
-    auth_data = {key: str(value) for key, value in query.items() if key in {
-        "id", "first_name", "last_name", "username", "photo_url", "auth_date", "hash"
-    }}
-    if auth_data:
-        if _verify_telegram_login(auth_data):
-            is_member = _telegram_is_member(auth_data.get("id"))
-            if is_member:
-                st.session_state["telegram_verified"] = True
-                st.session_state["telegram_user_id"] = auth_data.get("id")
-                st.query_params.clear()
-                st.rerun()
-            elif is_member is False:
-                st.warning("❌ သင်သည် Telegram Group ထဲ မဝင်ရသေးပါ။ အရင်ဝင်ပြီးနောက် အောက်က Verify ခလုတ်ကို ပြန်နှိပ်ပါ။")
-        else:
-            st.error("Telegram verification မအောင်မြင်ပါ။ Login ခလုတ်ကို ပြန်နှိပ်ပါ။")
-
     st.markdown("""
     <div class="telegram-banner">
       <div style="font-size:16px;font-weight:700;color:#f0f9ff;">🔒 အသံထုတ်ရန် Telegram Group ဝင်ထားရပါမည်</div>
-      <div style="font-size:13px;color:#e0f2fe;margin:6px 0;">အရင် Group ဝင်ပြီး Telegram account နဲ့ Verify လုပ်ပါ။</div>
+      <div style="font-size:13px;color:#e0f2fe;margin:6px 0;">အရင် Group ဝင်ပြီး Telegram User ID နဲ့ Verify လုပ်ပါ။</div>
       <a href="https://t.me/fruitworld23" target="_blank">🔗 fruitworld23 Group သို့ ဝင်မည်</a>
     </div>
     """, unsafe_allow_html=True)
+
     st.markdown("#### Telegram Account Verify လုပ်ရန်")
-    components.html(
-        f"""<script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="{html.escape(TELEGRAM_BOT_USERNAME)}" data-size="large" data-userpic="false" data-request-access="write" data-onauth="onTelegramAuth(user)"></script><script>function onTelegramAuth(user) {{ const url = new URL(window.top.location.href); Object.keys(user).forEach(k => url.searchParams.set(k, user[k])); window.top.location.href = url.toString(); }}</script>""",
-        height=60,
-    )
+    st.caption("ကိုယ့် Telegram User ID ကို @userinfobot မှ ရယူပြီး အောက်မှာထည့်ပါ။ User ID က username (@name) မဟုတ်ဘဲ ဂဏန်းနံပါတ်ဖြစ်ရပါမယ်။")
+    user_id_text = st.text_input(
+        "Telegram User ID",
+        key="telegram_user_id_input",
+        placeholder="ဥပမာ - 123456789",
+    ).strip()
+    if st.button("✅ Group Join ပြီး Verify လုပ်မည်", key="verify_telegram_member", use_container_width=True):
+        if not user_id_text.isdigit():
+            st.error("❌ Telegram User ID ကို ဂဏန်းနံပါတ်ဖြင့် ထည့်ပါ။ @username မထည့်ပါနဲ့။")
+        else:
+            is_member = _telegram_is_member(user_id_text)
+            if is_member:
+                st.session_state["telegram_verified"] = True
+                st.session_state["telegram_user_id"] = user_id_text
+                st.rerun()
+            elif is_member is False:
+                st.warning("❌ ဒီ Telegram User ID က Group member မဟုတ်သေးပါ။ Group ဝင်ပြီး Verify ပြန်လုပ်ပါ။")
+            else:
+                st.error("❌ Telegram Bot Token ကို စစ်ပါ။")
     return False
 
 
@@ -522,8 +497,7 @@ def admin_page():
                         json.dump({"count": 0}, f)
                     st.rerun()
         elif pwd:
-
-                    st.error("❌ Password မှားယွင်းနေပါသည်။")
+            st.error("❌ Password မှားယွင်းနေပါသည်။")
 
 # ---------------------------------------------------------------------------
 # Main Router
